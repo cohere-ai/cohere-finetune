@@ -1,0 +1,58 @@
+[project]
+name = "cohere-finetune"
+version = "1.0.0"
+description = "A tool that facilitates easy, efficient and high-quality fine-tuning of Cohere's models"
+authors = [{name = "Cohere"}]
+dependencies = [
+    "accelerate==0.34.0",
+    "datasets==2.19.0",
+    "flask==3.0.2",
+    "fsspec==2024.3.1",
+    "numpy==1.26.3",
+    "pandas==2.2.2",
+    "peft==0.12.0",
+    "torch==2.4.0",
+    "transformers==4.44.2",
+    "trl==0.10.1",
+    "liquidpy>=0.8.2",
+    "pytest>=8.3.3",
+    "pytest-cov>=5.0.0",
+    "pytest-xdist>=3.6.1",
+    "ruff>=0.7.2",
+]
+requires-python = ">=3.10,<4.0"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm]
+distribution = true
+
+[tool.pytest.ini_options]
+pythonpath = ["src/cohere_finetune"]
+
+[tool.ruff]
+src = ["src/cohere_finetune"]
+line-length = 119
+extend-exclude = ["*.ipynb"]
+
+[tool.ruff.lint]
+extend-select = [
+    "C", # Complexity
+    "E", # PEP8 errors
+    "F", # PEP8 formatting
+    "I", # Import sorting
+    "UP", # Pyupgrade upgrades
+    "W", # PEP8 warnings
+    "PT009", # Pytest assertions
+]
+ignore = [
+    "C901", # Function too complex
+    "E501", # Line length (handled by ruff-format)
+    "I001", # Import block is un-sorted or un-formatted
+    "UP007", # X | Y style Unions
+    "UP015", # Unnecessary open mode parameters
+]

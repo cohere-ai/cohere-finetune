@@ -1,0 +1,55 @@
+name: tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    runs-on: ubuntu-22.04
+
+    timeout-minutes: 10
+
+    permissions:
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python_version: ["3.10"]  # More versions of Python can be added
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PDM
+        uses: pdm-project/setup-pdm@v4
+        with:
+          python-version: ${{ matrix.python_version }}
+          version: 2.12.3
+          cache: true
+
+      - name: Install dependencies
+        run: pdm install --frozen-lockfile
+
+      - name: Run tests
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: >- 
+          pdm run pytest
+          -v
+          --color=yes
+          -n auto
+          --durations=3
+          --cov=src/cohere_finetune
+          --cov-report=term-missing
+          tests/
