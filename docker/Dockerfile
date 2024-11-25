@@ -13,7 +13,7 @@ COPY ./docker/cuda.repo /etc/yum.repos.d/cuda.repo
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         gnupg2=2.2.27-3ubuntu2.1 \
-        curl=7.81.0-1ubuntu1.18 \
+        curl=7.81.0-1ubuntu1.19 \
         ca-certificates=20240203~22.04.1 \
     && curl -fsSLO https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb \
     && dpkg -i cuda-keyring_1.0-1_all.deb \
@@ -40,6 +40,21 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/cache/apt/* \
     && echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
     && echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
+
+RUN apt update && apt install -yq wget kmod && \
+    NVIDIA_DRIVER_VERSION=535.129.03 && \
+    cd /tmp && \
+    wget https://us.download.nvidia.com/tesla/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run && \
+    chmod +x NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run && \
+    ./NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run -a --no-drm --silent \
+        --no-kernel-module \
+        --install-compat32-libs \
+        --no-nouveau-check \
+        --no-nvidia-modprobe \
+        --no-systemd \
+        --no-rpms \
+        --no-backup \
+        --no-check-for-alternate-installs
 
 ENV PATH /usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
 ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/lib:/usr/local/nvidia/lib64:/usr/local/cuda-12.4/lib64:/usr/local/cuda/lib64
