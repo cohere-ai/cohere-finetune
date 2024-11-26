@@ -42,7 +42,7 @@ RUN apt-get update && apt-get install -y \
     && echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
 
 RUN apt update && apt install -yq wget kmod && \
-    NVIDIA_DRIVER_VERSION=535.129.03 && \
+    NVIDIA_DRIVER_VERSION=535.216.01 && \
     cd /tmp && \
     wget https://us.download.nvidia.com/tesla/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run && \
     chmod +x NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run && \
