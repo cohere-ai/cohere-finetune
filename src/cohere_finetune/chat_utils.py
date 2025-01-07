@@ -2,7 +2,12 @@ import json
 
 
 def is_valid_chat(chat: dict) -> bool:
-    """Check whether the input is a valid chat in the valid format."""
+    """
+    Check whether the input is a valid chat in the valid format.
+
+    If the first message is a System message, it will be regarded as preamble. Except for this, a System message
+    is regarded as equivalent to a User message (they are exchangeable).
+    """
     try:
         assert isinstance(chat, dict) and len(chat) == 1 and isinstance(chat["messages"], list)
         n_system_role_curr_turn, n_user_role_curr_turn = 0, 0
