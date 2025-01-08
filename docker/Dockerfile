@@ -13,7 +13,7 @@ COPY ./docker/cuda.repo /etc/yum.repos.d/cuda.repo
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         gnupg2=2.2.27-3ubuntu2.1 \
-        curl=7.81.0-1ubuntu1.19 \
+        curl \
         ca-certificates=20240203~22.04.1 \
     && curl -fsSLO https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb \
     && dpkg -i cuda-keyring_1.0-1_all.deb \

@@ -2,24 +2,28 @@ import json
 
 
 def is_valid_chat(chat: dict) -> bool:
-    """Check whether the input is a valid chat in the valid format."""
+    """
+    Check whether the input is a valid chat in the valid format.
+
+    If the first message is a System message, it will be regarded as preamble. Except for this, a System message
+    is regarded as equivalent to a User message (they are exchangeable).
+    """
     try:
         assert isinstance(chat, dict) and len(chat) == 1 and isinstance(chat["messages"], list)
-        n_user, n_chatbot = 0, 0
+        n_system_role_curr_turn, n_user_role_curr_turn = 0, 0
+        n_chatbot_role_total = 0
         for i, message in enumerate(chat["messages"]):
             assert isinstance(message, dict) and len(message) == 2 and isinstance(message["content"], str)
-            if i == 0:
-                if message["role"] == "User":
-                    n_user += 1
-                else:
-                    assert message["role"] == "System"
+            if message["role"] == "System":
+                n_system_role_curr_turn += 1
+            elif message["role"] == "User":
+                n_user_role_curr_turn += 1
             else:
-                if message["role"] == "User":
-                    n_user += 1
-                else:
-                    assert message["role"] == "Chatbot" and n_user > 0
-                    n_chatbot += 1
-        assert n_user > 0 and n_chatbot > 0
+                assert message["role"] == "Chatbot"
+                assert n_user_role_curr_turn > 0 or (n_system_role_curr_turn > 0 and i > 1)
+                n_system_role_curr_turn, n_user_role_curr_turn = 0, 0
+                n_chatbot_role_total += 1
+        assert n_chatbot_role_total > 0
         return True
     except (AssertionError, KeyError):
         return False

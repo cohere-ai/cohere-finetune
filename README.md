@@ -18,7 +18,7 @@ Currently, we support the following fine-tuning strategies:
 We will keep extending the base models and fine-tuning strategies we support, and keep adding more features, to help our users fine-tune Cohere's models more easily, more efficiently and with higher quality.
 
 ## 1. Prerequisites
-- You need to have access to a machine with at least one GPU. The specific required number, memory and model of GPUs depend on your specific use case, e.g., the model to fine-tune, the batch size, the max sequence length in the data, etc.
+- You need to have access to a machine with at least one GPU, e.g., H100, H200, etc. The specific required number, memory and model of GPUs depend on your specific use case, e.g., the model to fine-tune, the batch size, the max sequence length in the data, etc.
 - You need to install necessary apps, e.g., Docker, Git, etc. on the GPU machine.
 
 To help you better decide the hardware resources you need, we list some feasible scenarios in the following table as a reference, where all the other hyperparameters that are not shown in the table are set as their default values (see [here](#step-4-submit-the-request-to-start-the-fine-tuning)).
