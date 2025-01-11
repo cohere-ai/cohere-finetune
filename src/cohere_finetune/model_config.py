@@ -82,11 +82,11 @@ def get_model_config_from_model_name_and_model_path(model_name: str, model_path:
         raise ValueError(f"{model_name} is not a valid and supported model name")
 
 
-class BaseModel:
-    """Base model for finetuning."""
+class ModelConfig:
+    """Model configuration."""
 
     def __init__(self, model_name_or_path: str) -> None:
-        """Initialize BaseModel."""
+        """Initialize ModelConfig."""
         try:
             model_name = get_model_name_from_hf_config(os.path.join(model_name_or_path, "config.json"))
             model_path = model_name_or_path

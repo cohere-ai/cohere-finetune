@@ -54,7 +54,7 @@ def train_with_peft(path_config: CoherePeftPathConfig, hyperparameters: Hyperpar
         peft_cmd = ["python"]
 
     # Get the HuggingFace model name
-    model_name_or_path = hyperparameters.base_model.get_hf_model_name_or_path()
+    model_name_or_path = hyperparameters.base_model_config.get_hf_model_name_or_path()
 
     # Get the per_device_train_batch_size and per_device_eval_batch_size
     per_device_train_batch_size, r_train = divmod(
