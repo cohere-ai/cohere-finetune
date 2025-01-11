@@ -6,6 +6,8 @@ import time
 import torch
 from chat_utils import is_valid_chat, normalize_messages
 from flask import Flask, jsonify, request, Response
+from liquid import Liquid
+from model_config import ModelConfig
 from tokenizer_utils import create_and_prepare_tokenizer
 from transformers import CohereForCausalLM
 from transformers.modeling_utils import PreTrainedModel
@@ -39,6 +41,7 @@ class CohereInference:
         self.app = Flask(__name__)
 
         self.model_name_or_path: str | None = None
+        self.liquid_template: Liquid | None = None
         self.model: PreTrainedModel | None = None
         self.tokenizer: CohereTokenizerFast | None = None
 
@@ -52,7 +55,7 @@ class CohereInference:
         def inference() -> Response:
             """Conduct model inference on a single text."""
             model_name_or_path = request.json.pop("model_name_or_path")
-            message = request.json.pop("message")
+            message = request.json.pop("message", "")
             chat_history = request.json.pop("chat_history", [])
             preamble = request.json.pop("preamble", "")
             param = {k: json.loads(v) if v in {"false", "true"} else v for k, v in request.json.items()}
@@ -61,6 +64,7 @@ class CohereInference:
                 logger.info("Model is not loaded or needs to be changed, so loading the desired model...")
                 self._reset()  # Before loading another model, reset to release the memory used
                 self.model_name_or_path = model_name_or_path
+                self.liquid_template = Liquid(ModelConfig(model_name_or_path).get_prompt_template(), from_file=False)
                 self.model = load_model_for_inference(model_name_or_path)
                 self.tokenizer = create_and_prepare_tokenizer(model_name_or_path)
 
@@ -69,17 +73,23 @@ class CohereInference:
             messages = ([{"role": "System", "content": preamble}] if preamble else []) + \
                 chat_history + ([{"role": "User", "content": message}] if message else [])
             if not is_valid_chat({"messages": messages}):
-                return jsonify({"message": f"Invalid input format"})
+                return jsonify({"message": "Invalid input format"})
 
             normalize_messages(messages)
-            # TODO: replace the line below with Liquid Template
-            # templated_text = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+            if messages[0]["role"] == "System":
+                templated_text = self.liquid_template.render(
+                    safety_mode="NONE", preamble=messages[0]["message"], messages=messages[1:]
+                )
+            else:
+                templated_text = self.liquid_template.render(
+                    safety_mode="NONE", preamble="", messages=messages
+                )
 
             """
             During training, we didn't add the special tokens like <BOS_TOKEN> to the preprocessed (templated) text,
             so we let the tokenizer add them (setting add_special_tokens=True)
 
-            During inference, we just added these special tokens by apply_chat_template,
+            During inference, we just added these special tokens by the Liquid template,
             so we don't let the tokenizer add them again (setting add_special_tokens=False)
             """
             tokenized_templated_text = self.tokenizer(
@@ -121,8 +131,9 @@ class CohereInference:
             return jsonify({"message": "Server terminated"})
 
     def _reset(self) -> None:
-        """Reset the model_name_or_path, model, and tokenizer to the original values, and release the memory."""
+        """Reset the model_name_or_path, liquid_template, model, and tokenizer to the original values, and release the memory."""
         self.model_name_or_path = None
+        self.liquid_template = None
         self.model = None
         self.tokenizer = None
         torch.cuda.empty_cache()
