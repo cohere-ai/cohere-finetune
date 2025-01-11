@@ -212,13 +212,15 @@ curl --request POST http://localhost:5001/inference \
 ```
 The parameters are explained below.
 - The parameter `model_name_or_path` is required, where `<model_name_or_path>` can be any model name accepted by [CohereForCausalLM.from_pretrained](https://huggingface.co/docs/transformers/main/en/model_doc/cohere#transformers.CohereForCausalLM) or a path to the merged weights of any fine-tuned model in the format of `/opt/finetuning/<finetune_sub_dir>/<finetune_name>/output/merged_weights`.
-- The parameter `message` is required, where its value can be any string.
-- The parameter `chat_history` is optional, where `<chat_history>` is a list of messages in the format of `[{"role": "user", "content": "<user_content_1>"}, {"role": "assistant", "content": "<assistant_content_1>"}, ...]`.
-- The parameter `preamble` is optional, where its value can be any string.
+- The parameter `message` is optional (but at least one of `message` and `chat_history` must be provided), where its value can be any string. If a non-empty string is provided, we will add it as a user message `{"role": "User", "content": "<message>"}` at the end of the input.
+- The parameter `chat_history` is optional (but at least one of `message` and `chat_history` must be provided), where `<chat_history>` is a list of messages in the format of `[{"role": "User", "content": "<user_content_1>"}, {"role": "Chatbot", "content": "<chatbot_content_1>"}, ...]`.
+- The parameter `preamble` is optional, where its value can be any string. If a non-empty string is provided, we will add it as a system message `{"role": "System", "content": "<preamble>"}` at the beginning of the input.
 - You must explicitly set the parameter `max_new_tokens` as a large enough number; if you do not set it or set it as a small number, the model generation could be truncated and our inference service currently does not allow such an incomplete generation.
 - You can also add any other parameters accepted by the [generate](https://huggingface.co/docs/transformers/main/en/main_classes/text_generation#transformers.GenerationMixin.generate) method, e.g., `"do_sample": "false"`, etc.
 
-A caveat is that if the inference service finds the model you want to use is different from the current model it is holding, it will spend some time loading the model you want. Therefore, please do not frequently switch models during inference; you want to finish all the inferences with one model before switching to another model.
+Here are several caveats:
+- If the inference service finds the model you want to use is different from the current model it is holding, it will spend some time loading the model you want. Therefore, please do not frequently switch models during inference; you want to finish all the inferences with one model before switching to another model.
+- If you use cURL to send the request, and `<message>`, `<chat_history>` or `<preamble>` contains the single quote `'` or double quotes `"`, then you must replace `'` with `'\''` and replace `"` with `\"` to escape them.
 
 You can also run the following command to get some information of the inference service, e.g., the current model it is holding, etc.
 ```commandline
