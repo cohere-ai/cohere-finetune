@@ -61,20 +61,20 @@ def dedupe_chats(chats: list[dict]) -> list[dict]:
 
 def normalize_messages(messages: list[dict]) -> None:
     """
-    Normalize a list of messages in place by doing the following.
-    - If a message uses "System", "SYSTEM", etc. as the value of "role", we change it to "system"
-    - If a message uses "User", "USER", etc. as the value of "role", we change it to "user"
-    - If a message uses "Chatbot", "CHATBOT", "Assistant", etc. as the value of "role", we change it to "assistant"
-    - If a message uses the key "message", we rename it to "content"
+    To convert a list of messages into a valid input for Liquid template, normalize the messages in place by doing the following.
+    - If a message uses "system", "SYSTEM", etc. as the value of "role", we change it to "System"
+    - If a message uses "user", "USER", etc. as the value of "role", we change it to "User"
+    - If a message uses "assistant", "ASSISTANT", "chatbot", "CHATBOT", etc. as the value of "role", we change it to "Chatbot"
+    - If a message uses the key "content", we rename it to "message"
     """
     for message in messages:
         if message["role"].lower() == "system":
-            message["role"] = "system"
+            message["role"] = "System"
         elif message["role"].lower() == "user":
-            message["role"] = "user"
-        elif message["role"].lower() in {"chatbot", "assistant"}:
-            message["role"] = "assistant"
+            message["role"] = "User"
+        elif message["role"].lower() in {"assistant", "chatbot"}:
+            message["role"] = "Chatbot"
 
-        if "message" in message:
-            message["content"] = message["message"]
-            del message["message"]
+        if "content" in message:
+            message["message"] = message["content"]
+            del message["content"]

@@ -4,7 +4,7 @@ import signal
 import sys
 import time
 import torch
-from chat_utils import normalize_messages
+from chat_utils import is_valid_chat, normalize_messages
 from flask import Flask, jsonify, request, Response
 from tokenizer_utils import create_and_prepare_tokenizer
 from transformers import CohereForCausalLM
@@ -66,10 +66,14 @@ class CohereInference:
 
             start_time = time.time()
 
-            normalize_messages(chat_history)
-            chat = ([{"role": "system", "content": preamble}] if preamble else []) + \
-                chat_history + [{"role": "user", "content": message}]
-            templated_text = self.tokenizer.apply_chat_template(chat, tokenize=False, add_generation_prompt=True)
+            messages = ([{"role": "System", "content": preamble}] if preamble else []) + \
+                chat_history + ([{"role": "User", "content": message}] if message else [])
+            if not is_valid_chat({"messages": messages}):
+                return jsonify({"message": f"Invalid input format"})
+
+            normalize_messages(messages)
+            # TODO: replace the line below with Liquid Template
+            # templated_text = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 
             """
             During training, we didn't add the special tokens like <BOS_TOKEN> to the preprocessed (templated) text,
