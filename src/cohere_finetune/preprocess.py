@@ -118,7 +118,7 @@ def preprocess_chat(
     """
     Preprocess a single chat.
 
-    A chat is a sequence of messages such as: Preamble, User1, Chatbot1, User2, User3, Chatbot2,
+    Here, a chat is defined as a sequence of messages such as: Preamble, User1, Chatbot1, User2, User3, Chatbot2,
     where there are two turns in this example: [User1, Chatbot1], [User2, User3, Chatbot2]
 
     If the number of tokens of Preamble + User2 + User3 + Chatbot2 > max_sequence_length,
