@@ -41,6 +41,7 @@ class CohereInference:
         self.app = Flask(__name__)
 
         self.model_name_or_path: str | None = None
+        self.model_config: ModelConfig | None = None
         self.liquid_template: Liquid | None = None
         self.model: PreTrainedModel | None = None
         self.tokenizer: CohereTokenizerFast | None = None
@@ -63,10 +64,12 @@ class CohereInference:
             if model_name_or_path != self.model_name_or_path:
                 logger.info("Model is not loaded or needs to be changed, so loading the desired model...")
                 self._reset()  # Before loading another model, reset to release the memory used
+
                 self.model_name_or_path = model_name_or_path
-                self.liquid_template = Liquid(ModelConfig(model_name_or_path).get_prompt_template(), from_file=False)
-                self.model = load_model_for_inference(model_name_or_path)
-                self.tokenizer = create_and_prepare_tokenizer(model_name_or_path)
+                self.model_config = ModelConfig(model_name_or_path)
+                self.liquid_template = Liquid(self.model_config.get_prompt_template(), from_file=False)
+                self.model = load_model_for_inference(self.model_config.get_hf_model_name_or_path())
+                self.tokenizer = create_and_prepare_tokenizer(self.model_config.get_hf_model_name_or_path())
 
             start_time = time.time()
 
@@ -118,7 +121,7 @@ class CohereInference:
         @self.app.route("/info", methods=["GET"])
         def get_info() -> Response:
             """Return some information about the Cohere inference service."""
-            return jsonify({"model_name_or_path": self.model_name_or_path})
+            return jsonify({"model_name_or_path": self.model_name_or_path, "model_config": self.model_config.model_config})
 
     def _define_terminate_route(self) -> None:
 
@@ -131,8 +134,9 @@ class CohereInference:
             return jsonify({"message": "Server terminated"})
 
     def _reset(self) -> None:
-        """Reset the model_name_or_path, liquid_template, model, and tokenizer to the original values, and release the memory."""
+        """Reset the model_name_or_path, model_config, etc. to the original values, and release the memory."""
         self.model_name_or_path = None
+        self.model_config = None
         self.liquid_template = None
         self.model = None
         self.tokenizer = None

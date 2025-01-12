@@ -211,7 +211,7 @@ curl --request POST http://localhost:5001/inference \
     }'
 ```
 The parameters are explained below.
-- The parameter `model_name_or_path` is required, where `<model_name_or_path>` can be any model name accepted by [CohereForCausalLM.from_pretrained](https://huggingface.co/docs/transformers/main/en/model_doc/cohere#transformers.CohereForCausalLM) or a path to the merged weights of any fine-tuned model in the format of `/opt/finetuning/<finetune_sub_dir>/<finetune_name>/output/merged_weights`.
+- The parameter `model_name_or_path` is required, where the valid values of `<model_name_or_path>` are the same as those of `base_model_name_or_path` in [Step 4](#step-4-submit-the-request-to-start-the-fine-tuning). For example, it can be a path to the merged weights of any fine-tuned model in the format of `/opt/finetuning/<finetune_sub_dir>/<finetune_name>/output/merged_weights`.
 - The parameter `message` is optional (but at least one of `message` and `chat_history` must be provided), where its value can be any string. If a non-empty string is provided, we will add it as a user message `{"role": "User", "content": "<message>"}` at the end of the input.
 - The parameter `chat_history` is optional (but at least one of `message` and `chat_history` must be provided), where `<chat_history>` is a list of messages in the format of `[{"role": "User", "content": "<user_content_1>"}, {"role": "Chatbot", "content": "<chatbot_content_1>"}, ...]`.
 - The parameter `preamble` is optional, where its value can be any string. If a non-empty string is provided, we will add it as a system message `{"role": "System", "content": "<preamble>"}` at the beginning of the input.
