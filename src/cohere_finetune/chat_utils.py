@@ -1,9 +1,9 @@
 import json
 
 
-def is_valid_chat(chat: dict) -> bool:
+def is_valid_training_sample_chat(chat: dict) -> bool:
     """
-    Check whether the input is a valid chat in the valid format.
+    Check whether it is a valid chat we can use as a training sample.
 
     If the first message is a System message, it will be regarded as preamble. Except for this, a System message
     is regarded as equivalent to a User message (they are exchangeable).
@@ -29,11 +29,27 @@ def is_valid_chat(chat: dict) -> bool:
         return False
 
 
+def is_valid_inference_input_chat(chat: dict) -> bool:
+    """
+    Check whether it is a valid chat we can use as an inference input.
+
+    It is a valid chat we can use as an inference input, if and only if
+    it is a valid chat we can use as a training sample after we append a Chatbot message to it.
+    """
+    try:
+        assert isinstance(chat, dict) and len(chat) == 1 and isinstance(chat["messages"], list)
+        assert is_valid_training_sample_chat({"messages": chat["messages"] + [{"role": "Chatbot", "content": ""}]})
+        return True
+    except (AssertionError, KeyError):
+        return False
+
+
 def chat_to_str(chat: dict) -> str:
     """
     Convert a valid chat (a dictionary) to a string that serves as the fingerprint of the chat.
 
-    This function assumes its input is a valid chat, i.e., is_valid_chat(chat) must be True.
+    This function assumes its input is a valid chat for training, i.e.,
+    is_valid_training_sample_chat(chat) must be True.
     """
     # Create a normalized chat, where the order of keys in each message is always: "role" and then "content" (if the
     # only difference between two chats is the order of keys in each message, we want to regard them as the same chat)
@@ -47,7 +63,8 @@ def dedupe_chats(chats: list[dict]) -> list[dict]:
     """
     Deduplicate a list of chats, while preserving the original order of the chats.
 
-    This function assumes each chat in its input is a valid chat, i.e., all(is_valid_chat(chat) for chat in chats) must be True.
+    This function assumes each chat in its input is a valid chat for training, i.e.,
+    all(is_valid_training_sample_chat(chat) for chat in chats) must be True.
     """
     seen_chat_strings = set()
     deduped_chats = []

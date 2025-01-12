@@ -4,7 +4,7 @@ import signal
 import sys
 import time
 import torch
-from chat_utils import is_valid_chat, normalize_messages
+from chat_utils import is_valid_inference_input_chat, normalize_messages
 from flask import Flask, jsonify, request, Response
 from liquid import Liquid
 from model_config import ModelConfig
@@ -72,7 +72,7 @@ class CohereInference:
 
             messages = ([{"role": "System", "content": preamble}] if preamble else []) + \
                 chat_history + ([{"role": "User", "content": message}] if message else [])
-            if not is_valid_chat({"messages": messages}):
+            if not is_valid_inference_input_chat({"messages": messages}):
                 return jsonify({"message": "Invalid input format"})
 
             normalize_messages(messages)
