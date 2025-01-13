@@ -17,34 +17,47 @@ def create_and_prepare_tokenizer(model_name_or_path: str) -> CohereTokenizerFast
 
 def get_n_tokens_in_rendered_prompt_completion(rendered_prompt_completion: str, tokenizer: CohereTokenizerFast) -> int:
     """
-    Get the number of tokens in a rendered prompt-completion string, in various scenarios as discussed below:
+    Get the number of tokens in a rendered prompt-completion string which ideally should be in the format of
+    <BOS_TOKEN><|START_OF_TURN_TOKEN|>...<|END_OF_TURN_TOKEN|><|START_OF_TURN_TOKEN|><|CHATBOT_TOKEN|>...<|END_OF_TURN_TOKEN|>.
+
+    However, the actual prompt-completion string passed into this function may not be exactly in this format.
+    For example, the <BOS_TOKEN> could be stripped or there could be extra unwanted tokens appended at the end.
+    Thus, we need to carefully handle each of these scenarios, as described below.
 
     If the prompt-completion string starts with <BOS_TOKEN> and ends with
+        <|END_OF_TURN_TOKEN|><|START_OF_TURN_TOKEN|><|CHATBOT_TOKEN|><|START_RESPONSE|> (as when we do preprocessing in preprocess_chat):
+        we don't add special tokens: <BOS_TOKEN> and <|END_OF_TURN_TOKEN|>, but we ignore the last 3 tokens: <|START_OF_TURN_TOKEN|> and <|CHATBOT_TOKEN|> and <|START_RESPONSE|>
+    Else if the prompt-completion string starts with <BOS_TOKEN> and ends with
         <|END_OF_TURN_TOKEN|><|START_OF_TURN_TOKEN|><|CHATBOT_TOKEN|> (as when we do preprocessing in preprocess_chat):
-        we don't add special tokens in tokenization but exclude the last two tokens: <|START_OF_TURN_TOKEN|> and <|CHATBOT_TOKEN|>
-    Else if the prompt-completion string starts with <BOS_TOKEN> and ends with <|END_OF_TURN_TOKEN|>:
-        we don't add special tokens in tokenization and don't exclude any tokens
+        we don't add special tokens: <BOS_TOKEN> and <|END_OF_TURN_TOKEN|>, but we ignore the last 2 tokens: <|START_OF_TURN_TOKEN|> and <|CHATBOT_TOKEN|>
+    Else if the prompt-completion string starts with <BOS_TOKEN> and ends with <|END_OF_TURN_TOKEN|> (ideal case):
+        we don't add special tokens: <BOS_TOKEN> and <|END_OF_TURN_TOKEN|>, and we don't ignore any tokens
     Else (as when we calculate the max sequence length in get_max_sequence_length_in_data):
-        we add special tokens in tokenization but don't exclude any tokens
+        we add special tokens: <BOS_TOKEN> and <|END_OF_TURN_TOKEN|>, but we don't ignore any tokens
     """
     if (
         rendered_prompt_completion.startswith("<BOS_TOKEN>") and
+        rendered_prompt_completion.endswith("<|END_OF_TURN_TOKEN|><|START_OF_TURN_TOKEN|><|CHATBOT_TOKEN|><|START_RESPONSE|>")
+    ):
+        bos_token_stripped, n_ending_tokens_to_ignore = False, 3
+    elif (
+        rendered_prompt_completion.startswith("<BOS_TOKEN>") and
         rendered_prompt_completion.endswith("<|END_OF_TURN_TOKEN|><|START_OF_TURN_TOKEN|><|CHATBOT_TOKEN|>")
     ):
-        bos_token_stripped, ignore_last_two_tokens = False, True
+        bos_token_stripped, n_ending_tokens_to_ignore = False, 2
     elif (
         rendered_prompt_completion.startswith("<BOS_TOKEN>") and
         rendered_prompt_completion.endswith("<|END_OF_TURN_TOKEN|>")
     ):
-        bos_token_stripped, ignore_last_two_tokens = False, False
+        bos_token_stripped, n_ending_tokens_to_ignore = False, 0
     else:
         assert (
             not rendered_prompt_completion.startswith("<BOS_TOKEN>") and
-            not rendered_prompt_completion.endswith(("<|END_OF_TURN_TOKEN|>", "<|START_OF_TURN_TOKEN|>", "<|CHATBOT_TOKEN|>"))
+            not rendered_prompt_completion.endswith(("<|END_OF_TURN_TOKEN|>", "<|CHATBOT_TOKEN|>", "<|START_RESPONSE|>"))
         )
-        bos_token_stripped, ignore_last_two_tokens = True, False
+        bos_token_stripped, n_ending_tokens_to_ignore = True, 0
 
-    return len(tokenizer(rendered_prompt_completion, add_special_tokens=bos_token_stripped)["input_ids"]) - 2 * int(ignore_last_two_tokens)
+    return len(tokenizer(rendered_prompt_completion, add_special_tokens=bos_token_stripped)["input_ids"]) - n_ending_tokens_to_ignore
 
 
 def get_max_sequence_length_in_data(data_path: str, tokenizer: CohereTokenizerFast) -> int:
