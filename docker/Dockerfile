@@ -92,7 +92,8 @@ RUN pip install --no-cache-dir \
     h5py==3.10.0 \
     pulp==2.8.0 \
     janus==1.0.0 \
-    transformers==4.44.2 \
+    transformers==4.48.0 \
+    tokenizers==0.21.0 \
     liquidpy==0.8.2
 
 # nvidia-ammo needs to be installed from NVIDIA's private pypi registry
