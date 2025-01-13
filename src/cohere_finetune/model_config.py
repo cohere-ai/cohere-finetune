@@ -33,8 +33,8 @@ def get_model_name_from_hf_config(hf_config_path: str) -> str:
 
 def get_model_config_from_model_name_and_model_path(model_name: str, model_path: str | None) -> dict:
     """
-    According to model_name and model_path, get the config of the base model,
-    which contains all information about the base model that we will use for cohere-finetune.
+    According to model_name and model_path, get the config of the model,
+    which contains all information about the model that we will use for cohere-finetune.
     """
     if model_name == "command-r":
         return {
@@ -82,11 +82,11 @@ def get_model_config_from_model_name_and_model_path(model_name: str, model_path:
         raise ValueError(f"{model_name} is not a valid and supported model name")
 
 
-class BaseModel:
-    """Base model for finetuning."""
+class ModelConfig:
+    """Model configuration."""
 
     def __init__(self, model_name_or_path: str) -> None:
-        """Initialize BaseModel."""
+        """Initialize ModelConfig."""
         try:
             model_name = get_model_name_from_hf_config(os.path.join(model_name_or_path, "config.json"))
             model_path = model_name_or_path
@@ -95,7 +95,7 @@ class BaseModel:
             model_path = None
 
         self.model_config = get_model_config_from_model_name_and_model_path(model_name, model_path)
-        logger.info(f"The base model config is as follows:\n{self.model_config}")
+        logger.info(f"The model config is as follows:\n{self.model_config}")
 
     def get_model_name(self) -> str:
         """Get the name of the model."""

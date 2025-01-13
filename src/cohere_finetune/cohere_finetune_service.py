@@ -108,7 +108,7 @@ class CohereFinetune:
             return
 
         # Create and prepare the tokenizer
-        tokenizer = create_and_prepare_tokenizer(self.hyperparameters.base_model.get_hf_model_name_or_path())
+        tokenizer = create_and_prepare_tokenizer(self.hyperparameters.base_model_config.get_hf_model_name_or_path())
 
         # Preprocess the finetuning dataset by doing train eval split (if needed) and putting the texts in template
         try:
@@ -119,8 +119,8 @@ class CohereFinetune:
                 output_train_path=self.path_config.finetune_train_path,
                 output_eval_path=self.path_config.finetune_eval_path,
                 eval_percentage=self.hyperparameters.eval_percentage,
-                template=self.hyperparameters.base_model.get_prompt_template(),
-                max_sequence_length=self.hyperparameters.base_model.get_max_possible_max_sequence_length(),
+                template=self.hyperparameters.base_model_config.get_prompt_template(),
+                max_sequence_length=self.hyperparameters.base_model_config.get_max_possible_max_sequence_length(),
                 tokenizer=tokenizer,
             )
             logger.info("Preprocessing finished")

@@ -1,8 +1,8 @@
 import json
 import os
 import torch
-from base_model import BaseModel
 from consts import FinetuneStrategy, ParallelStrategy, FINETUNE_BACKEND_KEY, PATH_PREFIX_KEY
+from model_config import ModelConfig
 from typing import Any
 
 
@@ -105,7 +105,7 @@ class Hyperparameters(BaseConfig):
     ) -> None:
         """Initialize Hyperparameters."""
         self.finetune_name = finetune_name
-        self.base_model = BaseModel(base_model_name_or_path)
+        self.base_model_config = ModelConfig(base_model_name_or_path)
         self.parallel_strategy = ParallelStrategy(parallel_strategy)
         self.finetune_strategy = FinetuneStrategy(finetune_strategy)
         self.use_4bit_quantization = json.loads(use_4bit_quantization)
@@ -119,7 +119,7 @@ class Hyperparameters(BaseConfig):
         self.lora_config = LoraConfig(**lora_config) if lora_config else LoraConfig()
         self.wandb_config = WandbConfig(**wandb_config) if wandb_config else None
 
-        self.max_sequence_length = self.base_model.get_max_possible_max_sequence_length()
+        self.max_sequence_length = self.base_model_config.get_max_possible_max_sequence_length()
 
         self._validate()
 

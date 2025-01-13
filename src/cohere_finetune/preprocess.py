@@ -1,6 +1,6 @@
 import pandas as pd
 import random
-from chat_utils import dedupe_chats, is_valid_chat
+from chat_utils import dedupe_chats, is_valid_training_sample_chat
 from liquid import Liquid
 from tokenizer_utils import get_n_tokens_in_rendered_prompt_completion
 from tqdm import tqdm
@@ -54,7 +54,7 @@ def preprocess(
 
 def get_valid_deduped_chats(chats: list[dict]) -> list[dict]:
     """Get all the valid and deduped chats from a given list of chats."""
-    valid_chats = [chat for chat in chats if is_valid_chat(chat)]
+    valid_chats = [chat for chat in chats if is_valid_training_sample_chat(chat)]
     logger.info(
         f"{len(valid_chats)} valid chats loaded, "
         f"while {len(chats) - len(valid_chats)} chats dropped as they are not in a valid format"
@@ -118,7 +118,7 @@ def preprocess_chat(
     """
     Preprocess a single chat.
 
-    A chat is a sequence of messages such as: Preamble, User1, Chatbot1, User2, User3, Chatbot2,
+    Here, for simplicity, we define a chat as a list of messages such as: Preamble, User1, Chatbot1, User2, User3, Chatbot2,
     where there are two turns in this example: [User1, Chatbot1], [User2, User3, Chatbot2]
 
     If the number of tokens of Preamble + User2 + User3 + Chatbot2 > max_sequence_length,
