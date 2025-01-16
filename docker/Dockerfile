@@ -119,12 +119,12 @@ RUN pip install --no-cache-dir \
     auto-gptq==0.7.1 \
     librosa==0.10.2.post1 \
     soundfile==0.12.1 \
-    accelerate==0.34.0 \
+    accelerate==1.2.1 \
     peft[test]==0.12.0 \
     aqlm[gpu]==1.0.2 \
     hqq==0.2.1.post1 \
     deepspeed==0.15.1 \
-    trl==0.10.1 \
+    trl==0.11.4 \
     wandb==0.17.8 \
     zstandard==0.23.0 \
     wheel==0.44.0 \
