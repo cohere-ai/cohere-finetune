@@ -88,12 +88,12 @@ RUN pip install --no-cache-dir \
     safetensors==0.4.2 \
     mpi4py==3.1.5 \
     StrEnum==0.4.15 \
-    datasets==2.19.0 \
+    datasets==3.2.0 \
     h5py==3.10.0 \
     pulp==2.8.0 \
     janus==1.0.0 \
-    transformers==4.45.0 \
-    tokenizers==0.20.3 \
+    transformers==4.48.0 \
+    tokenizers==0.21.0 \
     liquidpy==0.8.2
 
 # nvidia-ammo needs to be installed from NVIDIA's private pypi registry
@@ -124,7 +124,7 @@ RUN pip install --no-cache-dir \
     aqlm[gpu]==1.0.2 \
     hqq==0.2.1.post1 \
     deepspeed==0.15.1 \
-    trl==0.11.4 \
+    trl==0.12.0 \
     wandb==0.17.8 \
     zstandard==0.23.0 \
     wheel==0.44.0 \
@@ -137,8 +137,8 @@ ENV CPATH=/root/.pyenv/versions/3.10.12/lib/python3.10/site-packages/nvidia/cuso
 # Add autoawq for quantization testing
 # We ignore their requirements for nvidia-cudnn-cu12-8.9.2.26, torch-2.3.1, triton-2.3.1
 RUN pip install --no-cache-dir --no-deps \
-    autoawq==0.2.6 \
-    autoawq-kernels==0.0.7 \
+    autoawq==0.2.7.post3 \
+    autoawq-kernels==0.0.9 \
     pynvml==11.5.3
 
 RUN pip install --no-cache-dir git+https://github.com/NetEase-FuXi/EETQ.git

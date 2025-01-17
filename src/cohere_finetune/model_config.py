@@ -12,7 +12,7 @@ def get_model_name_from_hf_config(hf_config_path: str) -> str:
     """
     hf_config = load_file(hf_config_path)
 
-    if hf_config["architectures"] != ["CohereForCausalLM"]:
+    if hf_config["architectures"] != ["CohereForCausalLM"] and hf_config["architectures"] != ["Cohere2ForCausalLM"]:
         raise ValueError("The model is not one of Cohere's models for causal LM")
 
     if hf_config["hidden_size"] == 8192 and hf_config["rope_theta"] == 8000000:
