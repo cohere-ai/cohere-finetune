@@ -9,7 +9,7 @@ from flask import Flask, jsonify, request, Response
 from liquid import Liquid
 from model_config import ModelConfig
 from tokenizer_utils import create_and_prepare_tokenizer
-from transformers import CohereForCausalLM
+from transformers import AutoModelForCausalLM
 from transformers.modeling_utils import PreTrainedModel
 from transformers.models.cohere.tokenization_cohere_fast import CohereTokenizerFast
 from utils import logger
@@ -19,7 +19,7 @@ def load_model_for_inference(model_name_or_path: str) -> PreTrainedModel:
     """Load the model for inference."""
     # The model is set in evaluation mode by default using model.eval()
     # See https://huggingface.co/docs/transformers/en/main_classes/model#transformers.PreTrainedModel.from_pretrained
-    model = CohereForCausalLM.from_pretrained(
+    model = AutoModelForCausalLM.from_pretrained(
         model_name_or_path,
         quantization_config=None,
         attn_implementation="flash_attention_2",

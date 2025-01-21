@@ -3,7 +3,7 @@ import torch
 from finetune_backends.cohere_peft.peft_arguments import DataArguments, ModelArguments, TrainingArgumentsDefaultChanged
 from finetune_backends.cohere_peft.peft_utils import logger
 from peft import PeftModel
-from transformers import BitsAndBytesConfig, CohereForCausalLM
+from transformers import AutoModelForCausalLM, BitsAndBytesConfig
 from transformers.modeling_utils import PreTrainedModel
 from transformers.models.cohere.tokenization_cohere_fast import CohereTokenizerFast
 
@@ -85,14 +85,14 @@ def create_and_prepare_model(
         )
         if os.environ.get("ACCELERATE_USE_FSDP", "false") == "true" or os.environ.get("ACCELERATE_USE_DEEPSPEED", "false") == "true":
             # Can't use device_map if you use fsdp or deepspeed
-            model = CohereForCausalLM.from_pretrained(
+            model = AutoModelForCausalLM.from_pretrained(
                 model_args.model_name_or_path,
                 quantization_config=bnb_config,
                 attn_implementation="flash_attention_2" if model_args.use_flash_attn else "eager",
                 torch_dtype=torch_dtype,
             )
         else:
-            model = CohereForCausalLM.from_pretrained(
+            model = AutoModelForCausalLM.from_pretrained(
                 model_args.model_name_or_path,
                 quantization_config=bnb_config,
                 attn_implementation="flash_attention_2" if model_args.use_flash_attn else "eager",
@@ -117,7 +117,7 @@ def load_and_merge_model(base_model_name_or_path: str, adapter_weights_dir: str)
     Load the base model and the model finetuned by Peft,
     and merge the adapter weights to the base weights to get a model with merged weights.
     """
-    base_model = CohereForCausalLM.from_pretrained(base_model_name_or_path)
+    base_model = AutoModelForCausalLM.from_pretrained(base_model_name_or_path)
     peft_model = PeftModel.from_pretrained(base_model, adapter_weights_dir)
     merged_model = peft_model.merge_and_unload()
     return merged_model

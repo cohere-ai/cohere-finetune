@@ -41,8 +41,8 @@ def get_hf_datasets_from_cohere_data(
         df_eval = df_train_eval.iloc[n_train:, :].copy()
     assert df_train.shape[0] >= 1 and df_eval.shape[0] >= 1
 
-    # In the preprocessed data, the prompt will end with <|CHATBOT_TOKEN|>, so here we can and should concatenate the
-    # prompt and the completion without inserting a white space at the junction
+    # In the preprocessed data, the prompt will end with, e.g., <|CHATBOT_TOKEN|>, so here we can and should concatenate
+    # the prompt and the completion without inserting a white space at the junction
     df_train["text"] = df_train.apply(lambda z: f'{z.loc["prompt"].rstrip(" ")}{z.loc["completion"].lstrip(" ")}', axis=1)
     df_eval["text"] = df_eval.apply(lambda z: f'{z.loc["prompt"].rstrip(" ")}{z.loc["completion"].lstrip(" ")}', axis=1)
 

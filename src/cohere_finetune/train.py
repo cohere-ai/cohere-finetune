@@ -97,7 +97,7 @@ def train_with_peft(path_config: CoherePeftPathConfig, hyperparameters: Hyperpar
         "--train_input_path_or_name", path_config.finetune_train_path,
         "--eval_input_path", path_config.finetune_eval_path,
         "--max_seq_len", f"{hyperparameters.max_sequence_length}",
-        "--response_template", "<|CHATBOT_TOKEN|>",
+        "--response_template", hyperparameters.base_model_config.get_prompt_last_token(),
         "--output_dir", path_config.checkpoints_dir,
         "--merged_weights_dir", path_config.merged_weights_dir,
         "--gradient_checkpointing", f"{hyperparameters.gradient_checkpointing}",
