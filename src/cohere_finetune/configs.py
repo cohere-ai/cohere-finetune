@@ -4,6 +4,7 @@ import torch
 from consts import FinetuneStrategy, ParallelStrategy, FINETUNE_BACKEND_KEY, PATH_PREFIX_KEY
 from model_config import ModelConfig
 from typing import Any
+from utils import logger
 
 
 class BaseConfig:
@@ -56,8 +57,8 @@ class LoraConfig(BaseConfig):
 
     def _validate(self) -> None:
         """Validate LoraConfig."""
-        self._must_be_in_range("rank", 8, 16)
-        self._must_be_in_range("alpha", 16, 32)
+        self._must_be_in_range("rank", 1, float("Inf"))
+        self._must_be_in_range("alpha", 1, float("Inf"))
         self._must_be_non_empty_subset("target_modules", {"q", "k", "v", "o", "ffn_expansion"})
 
 
@@ -129,10 +130,10 @@ class Hyperparameters(BaseConfig):
         Some of the following requirements are based on best practices and can be changed if needed.
         """
         self._must_be_in_range("gradient_accumulation_steps", 1, float("Inf"))
-        self._must_be_in_range("train_epochs", 1, 10)
-        self._must_be_in_range("train_batch_size", 8, 32)
-        self._must_be_in_range("validation_batch_size", 8, 32)
-        self._must_be_in_range("learning_rate", 5e-5, 0.1)
+        self._must_be_in_range("train_epochs", 1, float("Inf"))
+        self._must_be_in_range("train_batch_size", 1, float("Inf"))
+        self._must_be_in_range("validation_batch_size", 1, float("Inf"))
+        self._must_be_in_range("learning_rate", 1e-5, 1)
         self._must_be_in_range("eval_percentage", 0.05, 0.5)
 
         n_batch_partitions = torch.cuda.device_count() if self.parallel_strategy != ParallelStrategy.VANILLA else 1
@@ -145,6 +146,14 @@ class Hyperparameters(BaseConfig):
             raise ValueError(
                 f"validation_batch_size {self.validation_batch_size} is not divisible by "
                 f"n_batch_partitions = {n_batch_partitions}"
+            )
+
+        per_device_train_batch_size = self.train_batch_size // (n_batch_partitions * self.gradient_accumulation_steps)
+        if per_device_train_batch_size > 8:
+            logger.warning(
+                f"Your training batch size on each device is {per_device_train_batch_size}, which could be "
+                f"too large and lead to an out of memory error especially when the sequences in your data are long. "
+                f"Consider to reduce the training batch size if you see the out of memory error."
             )
 
 
