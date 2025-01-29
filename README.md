@@ -118,7 +118,7 @@ curl --request POST http://localhost:5000/finetune \
     }'
 ```
 
-The `<finetune_name>` must be exactly the same as that used in [Step 3](#step-3-prepare-the-training-and-evaluation-data). If you are not going to use Weights & Biases for logging during the fine-tuning, the hyperparameter `"wandb_config"` can be removed. See table below for details about all the other hyperparameters we support, where some valid values or ranges below are based on best practices (you do not have to strictly follow them, but if you do not follow them, some validation codes also need to be changed or removed).
+The `<finetune_name>` must be exactly the same as that used in [Step 3](#step-3-prepare-the-training-and-evaluation-data). If you are not going to use Weights & Biases for logging during the fine-tuning, the hyperparameter `"wandb_config"` can be removed. See table below for details about all the other hyperparameters we support.
 
 | Hyperparameter               | Definition                                                                                               | Default value        | Valid values or range                                                                                                                                                             |
 |:-----------------------------|:---------------------------------------------------------------------------------------------------------|:---------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
