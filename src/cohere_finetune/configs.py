@@ -4,6 +4,7 @@ import torch
 from consts import FinetuneStrategy, ParallelStrategy, FINETUNE_BACKEND_KEY, PATH_PREFIX_KEY
 from model_config import ModelConfig
 from typing import Any
+from utils import logger
 
 
 class BaseConfig:
@@ -145,6 +146,14 @@ class Hyperparameters(BaseConfig):
             raise ValueError(
                 f"validation_batch_size {self.validation_batch_size} is not divisible by "
                 f"n_batch_partitions = {n_batch_partitions}"
+            )
+
+        per_device_train_batch_size = self.train_batch_size // (n_batch_partitions * self.gradient_accumulation_steps)
+        if per_device_train_batch_size > 8:
+            logger.warning(
+                f"Your training batch size on each device is {per_device_train_batch_size}, which could be "
+                f"too large and lead to an out of memory error especially when the sequences in your data are long. "
+                f"Consider to reduce the training batch size if you see the out of memory error."
             )
 
 
