@@ -133,6 +133,7 @@ RUN pip install --no-cache-dir \
 ENV CPATH=/root/.pyenv/versions/3.10.12/lib/python3.10/site-packages/nvidia/cusparse/include:${CPATH}
 ENV CPATH=/root/.pyenv/versions/3.10.12/lib/python3.10/site-packages/nvidia/cublas/include:${CPATH}
 ENV CPATH=/root/.pyenv/versions/3.10.12/lib/python3.10/site-packages/nvidia/cusolver/include:${CPATH}
+ENV NCCL_NVLS_ENABLE=0
 
 # Add autoawq for quantization testing
 # We ignore their requirements for nvidia-cudnn-cu12-8.9.2.26, torch-2.3.1, triton-2.3.1
