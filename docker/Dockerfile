@@ -142,7 +142,7 @@ RUN pip install --no-cache-dir --no-deps \
     autoawq-kernels==0.0.9 \
     pynvml==11.5.3
 
-RUN pip install --no-cache-dir git+https://github.com/NetEase-FuXi/EETQ.git
+RUN pip install --no-cache-dir git+https://github.com/NetEase-FuXi/EETQ.git@a6c511057df0a3cdb52154a37a244b25355e65eb
 
 RUN pip install --no-cache-dir --no-build-isolation flash-attn==2.6.3
 
