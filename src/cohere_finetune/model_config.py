@@ -1,5 +1,5 @@
 import os
-from consts import CHAT_PROMPT_TEMPLATE_CMD_R, CHAT_PROMPT_TEMPLATE_CMD_R_08_2024, CHAT_PROMPT_TEMPLATE_CMD_R_7B_12_2024
+from consts import CHAT_PROMPT_TEMPLATE_CMD_A_03_2025, CHAT_PROMPT_TEMPLATE_CMD_R, CHAT_PROMPT_TEMPLATE_CMD_R_08_2024, CHAT_PROMPT_TEMPLATE_CMD_R_7B_12_2024
 from utils import load_file, logger
 
 
@@ -25,6 +25,8 @@ def get_model_name_from_hf_config(hf_config_path: str) -> str:
         return "command-r-plus-08-2024"
     elif hf_config["hidden_size"] == 4096 and hf_config["rope_theta"] == 50000:
         return "command-r-7b-12-2024"
+    elif hf_config["hidden_size"] == 12288 and hf_config["rope_theta"] == 50000:
+        return "command-a-03-2025"
     elif hf_config["hidden_size"] == 4096 and hf_config["rope_theta"] == 10000:
         return "aya-expanse-8b"
     elif hf_config["hidden_size"] == 8192 and hf_config["rope_theta"] == 4000000 and hf_config["max_position_embeddings"] == 8192:
@@ -76,6 +78,14 @@ def get_model_config_from_model_name_and_model_path(model_name: str, model_path:
             "prompt_template": CHAT_PROMPT_TEMPLATE_CMD_R_7B_12_2024,
             "prompt_last_token": "<|START_RESPONSE|>",
             "hf_model_name_or_path": "CohereForAI/c4ai-command-r7b-12-2024" if model_path is None else model_path,
+            "max_possible_max_sequence_length": 16384,
+        }
+    elif model_name == "command-a-03-2025":
+        return {
+            "model_name": model_name,
+            "prompt_template": CHAT_PROMPT_TEMPLATE_CMD_A_03_2025,
+            "prompt_last_token": "<|START_RESPONSE|>",
+            "hf_model_name_or_path": "CohereForAI/c4ai-command-a-03-2025" if model_path is None else model_path,
             "max_possible_max_sequence_length": 16384,
         }
     elif model_name == "aya-expanse-8b":
